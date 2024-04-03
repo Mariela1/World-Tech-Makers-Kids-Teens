@@ -1,0 +1,42 @@
+import React, {useEffect,useState} from 'react';
+import Title from '../Title/index';
+import {useParams} from 'react-router-dom';
+import ItemList from '../ItemList/index';
+
+const productos = [
+    {id: 1, title: 'juguete1', categoria: 'juguetes', image:"data:image/png;base64,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" },
+    {id: 2, title: 'juguete2', categoria: 'juguetes', image:"https://falabella.scene7.com/is/image/FalabellaPE/gsc_115527059_1155702_1?wid=800&hei=800&qlt=70" },
+    {id: 3, title: 'juguete3', categoria: 'juguetes', image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgVh0N7A9zf4abwlXLOXRJ8MHCXO3euHs9zQ&usqp=CAU"},
+    {id: 4, title: 'comida1', categoria: 'comidas', image: "https://barker.pe/cdn/shop/files/Alimento-Pollo_grande.jpg?v=1683131703" },
+    {id: 5, title: 'comida2', categoria: 'comidas', image: "https://barker.pe/cdn/shop/files/Alimento-Pavo.jpg?v=1683131681"},
+    {id: 6, title: 'comida3', categoria: 'comidas', image: "https://home.ripley.com.pe/Attachment/WOP_5/Purina/12493034.jpg"}
+]
+
+export const ItemListContainer = ({texto}) => {
+    const [data, setData] = useState([]);
+    const {categoriaId} = useParams();
+    
+    useEffect(() => {
+        const getData = new Promise(resolve => {
+            setTimeout(() => {
+                resolve(productos)
+            }, 3000)
+        })
+
+        if (categoriaId) {
+            getData.then(res => setData(res.filter(producto => producto.categoria === categoriaId)))
+        } else {
+            getData.then(res => setData(res))
+        }
+        
+    }, [categoriaId]);
+
+   
+    return (
+        <>
+            <Title greeting={texto}/>
+            <ItemList data={data}/>
+        </>
+    )
+}
+export default ItemListContainer;
